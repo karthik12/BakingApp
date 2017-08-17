@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BakingApp</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="recipes_retrieve_error">unable to get recipes</string>
+</resources>
