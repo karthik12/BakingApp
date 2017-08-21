@@ -2,15 +2,17 @@ package com.example.karthikeyan.bakingapp;
 
 import android.arch.lifecycle.LiveData;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.karthikeyan.bakingapp.image.GlideApp;
 import com.example.karthikeyan.bakingapp.model.Recipe;
 import com.example.karthikeyan.bakingapp.model.Step;
-import com.squareup.picasso.Picasso;
+import com.example.karthikeyan.bakingapp.image.model.VideoThumbnailUrl;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -24,10 +26,11 @@ import butterknife.ButterKnife;
 
 class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
 
-    Consumer clickListener;
-    List<Recipe> recipes;
+    private static final String TAG = "RecipeAdapter";
+    private Consumer<Integer> clickListener;
+    private List<Recipe> recipes;
 
-    public RecipeAdapter(LiveData<List<Recipe>> recipes, Consumer<Integer> onRecipeClicked) {
+    RecipeAdapter(LiveData<List<Recipe>> recipes, Consumer<Integer> onRecipeClicked) {
         this.recipes = recipes.getValue();
         clickListener = onRecipeClicked;
     }
@@ -44,48 +47,33 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
             Recipe recipe = recipes.get(position);
             holder.recipeTitle.setText(recipe.name);
             if (!recipes.get(position).image.isEmpty()) {
-                Picasso.with(holder.itemView.getContext())
+                GlideApp.with(holder.itemView)
                         .load(recipes.get(position).image)
-                        .error(R.drawable.ic_error_outline_black_24dp).centerCrop()
-                        .placeholder(R.drawable.ic_donut_large_black_24dp).centerCrop()
+                        .centerInside()
+                        .placeholder(R.drawable.recipe_icon_md)
                         .into(holder.recipeImage);
-            } /*else {
-                String lastStepWithVideo = getLastStepWithVideo(recipe.steps);
-                Flowable<Bitmap> bitmapObservable = Flowable.fromCallable(() -> {
-                    Bitmap bitmap = null;
-                    MediaMetadataRetriever mediaMetadataRetriever = null;
-                    try {
-                        mediaMetadataRetriever = new MediaMetadataRetriever();
-                        mediaMetadataRetriever.setDataSource(lastStepWithVideo, new HashMap<String, String>());
-                        //   mediaMetadataRetriever.setDataSource(videoPath);
-                        bitmap = mediaMetadataRetriever.getFrameAtTime();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-
-                    } finally {
-                        if (mediaMetadataRetriever != null)
-                            mediaMetadataRetriever.release();
-                    }
-                    return bitmap;
-                });
-                bitmapObservable.forEach(bitmap -> {
-                     holder.recipeImage.setImageBitmap(bitmap);
-                });
-            }*/
+            } else {
+                Step lastStepWithVideo = getLastStepWithVideo(recipe.steps);
+                if (lastStepWithVideo == null) {
+                    Log.i(TAG, "onBindViewHolder: Video Url not found");
+                    return;
+                }
+                GlideApp.with(holder.itemView)
+                        .load(new VideoThumbnailUrl(lastStepWithVideo.videoURL))
+                        .centerInside()
+                        .placeholder(R.drawable.recipe_icon_md)
+                        .into(holder.recipeImage);
+            }
 
         }
     }
 
 
-    private String getLastStepWithVideo(List<Step> steps) {
+    private Step getLastStepWithVideo(List<Step> steps) {
+        return steps.stream()
+                .filter(s -> s.videoURL != null && !s.videoURL.isEmpty())
+                .reduce((a, b) -> b).orElse(null);
 
-        // String.valueOf(steps.stream().filter(s-> s.videoURL !=null && !s.videoURL.isEmpty()).findFirst());
-        for (Step step : steps) {
-            if (step.videoURL != null && !step.videoURL.isEmpty()) {
-                return step.videoURL;
-            }
-        }
-        return "";
     }
 
     @Override

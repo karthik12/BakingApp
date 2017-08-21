@@ -3,6 +3,7 @@ package com.example.karthikeyan.bakingapp;
 import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,6 +18,8 @@ import com.example.karthikeyan.bakingapp.model.Recipe;
 
 import java.util.List;
 
+import static android.media.CamcorderProfile.get;
+
 /**
  * Created by karthikeyan on 06/08/17.
  */
@@ -24,6 +27,7 @@ import java.util.List;
 public class MainActivityFragment extends LifecycleFragment{
 
     private static final String TAG = "MainActivityFragment";
+    public static final String RECIPE = "RECIPE";
 
     RecipeAdapter adapter;
     RecyclerView recyclerView;
@@ -64,7 +68,15 @@ public class MainActivityFragment extends LifecycleFragment{
     }
 
     void onRecipeClicked(Integer position){
-
+        List<Recipe> value = recipeViewModel.recipes.getValue();
+        if(value == null){
+            Log.i(TAG, "onRecipeClicked: No recipe");
+            return;
+        }
+        Recipe recipe = value.get(position);
+        Intent intent = new Intent(getContext(),DetailActivity.class);
+        intent.putExtra(RECIPE,recipe);
+        startActivity(intent);
         Log.d(TAG, "onRecipeClicked() called with: recipe = [" + position + "]");
 
     }

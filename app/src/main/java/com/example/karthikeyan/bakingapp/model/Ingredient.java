@@ -16,7 +16,7 @@ public class Ingredient implements Parcelable {
 
     @SerializedName("quantity")
     @Expose
-    public Float quantity;
+    public String quantity;
     @SerializedName("measure")
     @Expose
     public String measure;
@@ -28,7 +28,7 @@ public class Ingredient implements Parcelable {
         if (in.readByte() == 0) {
             quantity = null;
         } else {
-            quantity = in.readFloat();
+            quantity = in.readString();
         }
         measure = in.readString();
         ingredient = in.readString();
@@ -80,7 +80,7 @@ public class Ingredient implements Parcelable {
             parcel.writeByte((byte) 0);
         } else {
             parcel.writeByte((byte) 1);
-            parcel.writeFloat(quantity);
+            parcel.writeString(quantity);
         }
         parcel.writeString(measure);
         parcel.writeString(ingredient);

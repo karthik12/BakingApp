@@ -1,0 +1,119 @@
+package com.example.karthikeyan.bakingapp;
+
+import android.arch.lifecycle.LifecycleFragment;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.example.karthikeyan.bakingapp.model.Step;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.TransferListener;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+/**
+ * Created by karthikeyanp on 8/19/17.
+ */
+
+public class RecipeStepFragment extends LifecycleFragment {
+
+    private static final String TAG = "RecipeStepFragment";
+
+    @BindView(R.id.recipe_step_description)
+    TextView recipeStepDesc;
+
+    @BindView(R.id.recipe_step_video)
+    SimpleExoPlayerView exoPlayerView;
+
+
+    SimpleExoPlayer exoPlayer;
+    RecipeStepViewModel recipeStepModel;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.recipe_step_info, container, false);
+    }
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        ButterKnife.bind(this, view);
+    }
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        recipeStepModel = ViewModelProviders.of(getActivity()).get(RecipeStepViewModel.class);
+        observeViewModel();
+    }
+
+    private void observeViewModel() {
+        recipeStepModel.getStep().observe(this, step -> {
+            Log.i(TAG, "observeViewModel: step" + step);
+            recipeStepDesc.setText(step.description);
+            if (step.videoURL.isEmpty()) {
+                exoPlayerView.setVisibility(View.GONE);
+                return;
+            }
+            exoPlayerView.setVisibility(View.VISIBLE);
+            setVideo(step);
+        });
+    }
+
+    private void setVideo(Step step) {
+        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        AdaptiveTrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
+        DefaultTrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector);
+        exoPlayerView.setPlayer(exoPlayer);
+
+        Uri mp4VideoUri = Uri.parse(step.videoURL);
+
+        BandwidthMeter bandwidthMeterA = new DefaultBandwidthMeter();
+
+        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(getActivity(), "BakingApp", (TransferListener<? super DataSource>) bandwidthMeterA);
+        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+
+        MediaSource videoSource = new ExtractorMediaSource(mp4VideoUri,
+                dataSourceFactory, extractorsFactory, null, null);
+        exoPlayer.prepare(videoSource);
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+
+            recipeStepDesc.setVisibility(View.GONE);
+        }else {
+
+            recipeStepDesc.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(exoPlayer!=null)
+        exoPlayer.release();
+    }
+}

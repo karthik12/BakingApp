@@ -23,7 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by karthikeyan on 06/08/17.
  */
 
-public class RecipeViewModel extends AndroidViewModel {
+public class RecipeViewModel extends AndroidViewModel{
 
     private static final String TAG = "RecipeViewModel";
     private static final String BASE_URL = "http://go.udacity.com";
@@ -67,4 +67,5 @@ public class RecipeViewModel extends AndroidViewModel {
             }
         });
     }
+
 }
