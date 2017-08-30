@@ -27,10 +27,10 @@ import butterknife.ButterKnife;
 class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
 
     private static final String TAG = "RecipeAdapter";
-    private Consumer<Integer> clickListener;
+    private ClickListener clickListener;
     private List<Recipe> recipes;
 
-    RecipeAdapter(LiveData<List<Recipe>> recipes, Consumer<Integer> onRecipeClicked) {
+    RecipeAdapter(LiveData<List<Recipe>> recipes, ClickListener onRecipeClicked) {
         this.recipes = recipes.getValue();
         clickListener = onRecipeClicked;
     }
@@ -70,10 +70,17 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
 
 
     private Step getLastStepWithVideo(List<Step> steps) {
-        return steps.stream()
+       /* return steps.stream()
                 .filter(s -> s.videoURL != null && !s.videoURL.isEmpty())
                 .reduce((a, b) -> b).orElse(null);
-
+*/
+        Step temp = null;
+        for (Step step : steps) {
+            if(step.videoURL != null && !step.videoURL.isEmpty()){
+                temp = step;
+            }
+        }
+        return temp;
     }
 
     @Override
@@ -108,4 +115,7 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
         }
     }
 
+    interface ClickListener{
+        void accept(int position);
+    }
 }

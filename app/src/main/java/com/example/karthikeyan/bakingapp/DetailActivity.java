@@ -48,26 +48,30 @@ public class DetailActivity extends AppCompatActivity implements LifecycleOwner 
         setSupportActionBar(toolbar);
         if(getSupportActionBar() != null)
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Recipe recipe = getRecipe();
+        final Recipe recipe = getRecipe();
         Log.d(TAG, "onCreate:" + recipe);
         ButterKnife.bind(this);
         recipeView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecipeStepsAdapter(recipe, position -> {
-            if(isTwoPane){
-                RecipeStepViewModel viewModel = ViewModelProviders.of(this).get(RecipeStepViewModel.class);
-                viewModel.setRecipe(recipe);
-                viewModel.setStep(recipe.steps.get(position));
-                RecipeStepPagerFragment fragment = new RecipeStepPagerFragment();
-                getSupportFragmentManager().beginTransaction().replace(R.id.recipe_detail_container,fragment).commit();
-                return;
-            }
-            Log.i(TAG, "onCreate: clicked " + position);
-            Intent intent = new Intent(this, RecipeStepActivity.class);
-            intent.putExtra(RECIPE,recipe);
-            intent.putExtra(STEP, recipe.steps.get(position));
-            startActivity(intent);
+        adapter = new RecipeStepsAdapter(recipe, new RecipeStepsAdapter.ClickListener() {
+            @Override
+            public void click(int position) {
+                if(isTwoPane){
+                    RecipeStepViewModel viewModel = ViewModelProviders.of(DetailActivity.this).get(RecipeStepViewModel.class);
+                    viewModel.setRecipe(recipe);
+                    viewModel.setStep(recipe.steps.get(position));
+                    RecipeStepPagerFragment fragment = new RecipeStepPagerFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.recipe_detail_container,fragment).commit();
+                    return;
+                }
+                Log.i(TAG, "onCreate: clicked " + position);
+                Intent intent = new Intent(DetailActivity.this, RecipeStepActivity.class);
+                intent.putExtra(RECIPE,recipe);
+                intent.putExtra(STEP, recipe.steps.get(position));
+                startActivity(intent);
 
-        });
+            }
+        }
+       );
         recipeView.setAdapter(adapter);
         if(findViewById(R.id.recipe_detail_container)!=null){
             isTwoPane = true;

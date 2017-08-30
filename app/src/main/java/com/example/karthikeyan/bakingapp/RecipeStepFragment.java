@@ -1,6 +1,7 @@
 package com.example.karthikeyan.bakingapp;
 
 import android.arch.lifecycle.LifecycleFragment;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -71,15 +72,19 @@ public class RecipeStepFragment extends LifecycleFragment {
     }
 
     private void observeViewModel() {
-        recipeStepModel.getStep().observe(this, step -> {
-            Log.i(TAG, "observeViewModel: step" + step);
-            recipeStepDesc.setText(step.description);
-            if (step.videoURL.isEmpty()) {
-                exoPlayerView.setVisibility(View.GONE);
-                return;
+        recipeStepModel.getStep().observe(this, new Observer<Step>() {
+            @Override
+            public void onChanged(@Nullable Step step) {
+                Log.i(TAG, "observeViewModel: step" + step);
+                recipeStepDesc.setText(step.description);
+                if (step.videoURL.isEmpty()) {
+                    exoPlayerView.setVisibility(View.GONE);
+                    return;
+                }
+                exoPlayerView.setVisibility(View.VISIBLE);
+                setVideo(step);
             }
-            exoPlayerView.setVisibility(View.VISIBLE);
-            setVideo(step);
+
         });
     }
 
@@ -101,10 +106,10 @@ public class RecipeStepFragment extends LifecycleFragment {
         MediaSource videoSource = new ExtractorMediaSource(mp4VideoUri,
                 dataSourceFactory, extractorsFactory, null, null);
         exoPlayer.prepare(videoSource);
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
             recipeStepDesc.setVisibility(View.GONE);
-        }else {
+        } else {
 
             recipeStepDesc.setVisibility(View.VISIBLE);
         }
@@ -113,7 +118,7 @@ public class RecipeStepFragment extends LifecycleFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(exoPlayer!=null)
-        exoPlayer.release();
+        if (exoPlayer != null)
+            exoPlayer.release();
     }
 }

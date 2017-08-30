@@ -30,11 +30,11 @@ class RecipeStepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "RecipeStepsAdapter";
     public static final int INGREDIENT = 1;
     public static final int STEP = 2;
-    private Consumer<Integer> clickListener;
+    private ClickListener clickListener;
 
     private Recipe recipe;
 
-    RecipeStepsAdapter(Recipe recipe, Consumer<Integer> onRecipeClicked) {
+    RecipeStepsAdapter(Recipe recipe,ClickListener onRecipeClicked) {
         this.recipe = recipe;
         clickListener = onRecipeClicked;
     }
@@ -125,7 +125,7 @@ class RecipeStepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            clickListener.accept(getLayoutPosition() - recipe.ingredients.size());
+            clickListener.click(getLayoutPosition() - recipe.ingredients.size());
         }
     }
 
@@ -141,5 +141,9 @@ class RecipeStepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ButterKnife.bind(this, itemView);
         }
 
+    }
+
+    interface ClickListener{
+        void click(int position);
     }
 }

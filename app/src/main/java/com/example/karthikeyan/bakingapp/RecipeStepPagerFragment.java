@@ -2,6 +2,7 @@ package com.example.karthikeyan.bakingapp;
 
 import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -53,15 +54,18 @@ public class RecipeStepPagerFragment extends LifecycleFragment {
     }
 
     private void observeViewModel(LifecycleOwner fragment) {
-        viewModel.getStep().observe(fragment, step -> {
-            if (step == null) {
-                return;
-            }
-            if (getActivity() instanceof AppCompatActivity) {
+        viewModel.getStep().observe(fragment, new Observer<Step>() {
+            @Override
+            public void onChanged(@Nullable Step step) {
+                if (step == null) {
+                    return;
+                }
+                if (getActivity() instanceof AppCompatActivity) {
 
-                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(step.shortDescription);
-                mPager.setCurrentItem(step.id);
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(step.shortDescription);
+                    mPager.setCurrentItem(step.id);
 
+                }
             }
         });
     }
