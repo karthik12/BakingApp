@@ -12,6 +12,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.example.karthikeyan.bakingapp.model.Recipe;
 
@@ -70,6 +72,24 @@ public class DetailActivity extends AppCompatActivity implements LifecycleOwner 
         if(findViewById(R.id.recipe_detail_container)!=null){
             isTwoPane = true;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+         super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.recipe_info,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_add_to_widget:
+                new RecipeInfoWidgetManager().updateWidgetRecipe(getRecipe());
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+
     }
 
     @Override

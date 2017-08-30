@@ -37,7 +37,7 @@ public class MainActivityFragment extends LifecycleFragment{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container);
-        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view_main);
         progressBar = view.findViewById(R.id.progress_bar);
         return view;
     }
