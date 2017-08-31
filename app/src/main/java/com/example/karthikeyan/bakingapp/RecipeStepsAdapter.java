@@ -9,12 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.karthikeyan.bakingapp.image.GlideApp;
+import com.example.karthikeyan.bakingapp.image.model.VideoThumbnailUrl;
 import com.example.karthikeyan.bakingapp.model.Ingredient;
 import com.example.karthikeyan.bakingapp.model.Recipe;
 import com.example.karthikeyan.bakingapp.model.Step;
-import com.example.karthikeyan.bakingapp.image.model.VideoThumbnailUrl;
-
-import java.util.function.Consumer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
