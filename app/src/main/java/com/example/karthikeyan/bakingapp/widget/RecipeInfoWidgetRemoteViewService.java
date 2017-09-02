@@ -45,6 +45,12 @@ class MyRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
+        if(recipe == null){
+            return 0;
+        }
+        if(recipe.ingredients == null || recipe.ingredients.isEmpty()){
+            return 0;
+        }
         return recipe.ingredients.size();
     }
 

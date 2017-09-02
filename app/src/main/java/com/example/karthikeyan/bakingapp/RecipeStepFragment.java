@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.karthikeyan.bakingapp.model.Step;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -40,6 +41,8 @@ public class RecipeStepFragment extends LifecycleFragment {
 
     private static final String TAG = "RecipeStepFragment";
 
+    private static final java.lang.String SELECTED_POSITION = "position";
+
     @BindView(R.id.recipe_step_description)
     TextView recipeStepDesc;
 
@@ -50,9 +53,16 @@ public class RecipeStepFragment extends LifecycleFragment {
     SimpleExoPlayer exoPlayer;
     RecipeStepViewModel recipeStepModel;
 
+    long position;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        position = C.TIME_UNSET;
+        if (savedInstanceState != null) {
+            //...your code...
+            position = savedInstanceState.getLong(SELECTED_POSITION, C.TIME_UNSET);
+        }
         return inflater.inflate(R.layout.recipe_step_info, container, false);
     }
 
@@ -105,6 +115,7 @@ public class RecipeStepFragment extends LifecycleFragment {
 
         MediaSource videoSource = new ExtractorMediaSource(mp4VideoUri,
                 dataSourceFactory, extractorsFactory, null, null);
+        if (position != C.TIME_UNSET) exoPlayer.seekTo(position);
         exoPlayer.prepare(videoSource);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
@@ -114,11 +125,19 @@ public class RecipeStepFragment extends LifecycleFragment {
             recipeStepDesc.setVisibility(View.VISIBLE);
         }
     }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (exoPlayer != null) {
+            position = exoPlayer.getCurrentPosition();
+            exoPlayer.stop();
+            exoPlayer.release();
+            exoPlayer = null;
+        }
+    }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (exoPlayer != null)
-            exoPlayer.release();
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putLong(SELECTED_POSITION,position);
     }
 }
