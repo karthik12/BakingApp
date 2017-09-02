@@ -11,7 +11,7 @@ import com.example.karthikeyan.bakingapp.model.Step;
  * Created by karthikeyanp on 8/19/17.
  */
 
-class RecipeStepViewModel extends ViewModel {
+public class RecipeStepViewModel extends ViewModel {
 
     private MutableLiveData<Recipe> recipe = new MutableLiveData<>();
 
